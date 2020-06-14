@@ -1,0 +1,35 @@
+{
+  "name": "q-box_server",
+  "version": "1.0.0",
+  "description": "Qriocty Box Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"nodemon start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dipanjanpanja6/Q-box-Server.git"
+  },
+  "author": "Dipanjan Panja",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.2.0",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dateformat": "^3.0.3",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.7-alpha.3",
+    "express-useragent": "^1.0.13",
+    "firebase": "^7.14.4",
+    "firebase-admin": "^8.12.1",
+    "jsonwebtoken": "^8.5.1",
+    "nodemon": "^2.0.4",
+    "random-id": "^1.0.4"
+  },
+  "bugs": {
+    "url": "https://github.com/dipanjanpanja6/Q-box-Server/issues"
+  },
+  "homepage": "https://github.com/dipanjanpanja6/Q-box-Server#readme"
+}
