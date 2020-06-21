@@ -49,9 +49,11 @@ exports.signUp = (req, res, next) => {
         console.log(error);
 
         var errorCode = error.code;
-        var errorMessage = error.message;
+        var errorMessage = error.message; 
         if (errorCode == 'auth/weak-password') {
             return res.json({ error: true, message: 'The password is too weak. Use minimum 6 digit' });
+        }else if(errorCode == 'auth/invalid-email') {
+            return res.json({ error: true, message: 'Please enter a valid email address' });
         } else {
             return res.json({ error: true, message: errorMessage });
         }
@@ -72,13 +74,14 @@ exports.login = (req, res, next) => {
 
                 admin.firestore().collection('students').where('uid', '==', d.user.uid).limit(1).get().then(data => {
                     if (data.empty) {
-                        admin.firestore().doc(`/students/${d.user.uid}`).set({userEmailId:userEmailId});
-                        req.user = ({ uid: d.user.uid, email: d.user.email, success: true, isActivated: false })
-                        req.token = idToken
-                        return next()
+                        return res.json({ error: true, message: 'Something went wrong.' })
+                        // admin.firestore().doc(`/students/${d.user.uid}`).set({userEmailId:userEmailId});
+                        // req.user = ({ uid: d.user.uid, email: d.user.email, success: true, isActivated: false })
+                        // req.token = idToken
+                        // return next()
                     } else {
 
-                        // req.user = ({ isActivated: data.docs[0].data().isActivated, name: data.docs[0].data().userName, email: data.docs[0].data().userEmailId, uid: d.user.uid, success: true })
+                        req.user = ({ isActivated: data.docs[0].data().isActivated, name: data.docs[0].data().userName, email: data.docs[0].data().userEmailId, uid: d.user.uid, success: true })
                         req.token = idToken
                         return next()
                     }
@@ -98,10 +101,10 @@ exports.login = (req, res, next) => {
         // Handle Errors here.
         var errorCode = error.code;
         var errorMessage = error.message; 
-        if (errorCode == 'auth/weak-password') {
-            return res.json({ error: true, message: 'The password is too weak.' });
+        if (errorCode == 'auth/wrong-password') {
+            return res.json({ error: true, message: 'Invalid Email Address or Password' });
         }else if(errorCode=='auth/user-not-found'){
-            return res.json({ error: true, message: 'User Not Found' });
+            return res.json({ error: true, message: 'Invalid Email Address or Password' });
         
         }else{
             return res.json({ error: true, message: errorMessage });
@@ -134,3 +137,23 @@ exports.createCookies = (req, res) => {
             return res.status(401).json({ error: true, message: 'REQUEST FAILED! UNAUTHORIZED  );' });
         });
 }
+exports.checkUser = (req, res, next) => {
+
+    const sessionCookie = req.signedCookies.token || ''; 
+  
+    admin.auth().verifySessionCookie(
+      sessionCookie, true /** checkRevoked */)
+      .then((decodedClaims) => {
+        // console.log(decodedClaims);
+        
+        req.uid=(decodedClaims.uid)
+        req.email=(decodedClaims.email)
+        
+        next()
+      })
+      .catch(error => {
+        console.log(error.code);
+        return res.json({ error: true, message: error.code })
+      });
+  }
+  

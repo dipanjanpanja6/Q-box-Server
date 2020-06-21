@@ -77,10 +77,11 @@ exports.teacherLogin = (req, res, next) => {
 
                 admin.firestore().collection('teacher').where('uid', '==', d.user.uid).limit(1).get().then(data => {
                     if (data.empty) {
-                        admin.firestore().doc(`/teacher/${d.user.uid}`).set(userEmailId);
-                        req.user = ({ uid: d.user.uid, email: d.user.email, success: true, })
-                        req.token = idToken
-                        return next()
+                        return res.json({ error: true, message: 'User not found' })
+                        // admin.firestore().doc(`/teacher/${d.user.uid}`).set(userEmailId);
+                        // req.user = ({ uid: d.user.uid, email: d.user.email, success: true, })
+                        // req.token = idToken
+                        // return next()
                     } else {
 
                         req.user = ({ name: data.docs[0].data().userName, email: data.docs[0].data().userEmailId, uid: d.user.uid, success: true })
@@ -100,14 +101,72 @@ exports.teacherLogin = (req, res, next) => {
 
         var errorCode = error.code;
         var errorMessage = error.message;
-if(errorCode=='auth/user-not-found'){
-    return res.json({ error: true, message: 'User Not Found' });
+        if (errorCode == 'auth/user-not-found') {
+            return res.json({ error: true, message: 'User Not Found' });
 
-}else{
-    return res.json({ error: true, message: errorMessage });
-}
+        } else {
+            return res.json({ error: true, message: errorMessage });
+        }
 
     });
 
 
+}
+
+exports.teacherQuestionUpload = (req, res) => {
+    const uid = req.uid
+    const email = req.email
+
+    const data = {
+        id: randomId(10, 'Aa0'),
+        uid: uid,
+        email: email,
+        title: req.body.title,
+        gitLink: req.body.gitLink,
+        desc: req.body.desc,
+        imageUri: req.body.imageUri,
+        liveLink: req.body.liveLink,
+        createdAt: new Date().toLocaleString(),
+        star: 0,
+        member: [uid],
+        tag: req.body.tag,
+        status: req.body.status,
+        active: req.body.active
+    }
+    // console.log(data);
+    console.log(data.tag);
+    // console.log(req.body.tag);
+
+
+    var object = {}
+    object['projectKey ' + randomId(5, 'Aa0')] = data
+
+    admin.firestore().collection('project').doc().set(data).then(d => {
+
+        return res.json({ success: true })
+    }).catch((error) => {
+        console.log(error);
+        return res.json({ error: true, message: error })
+    })
+}
+
+exports.course = (req, res) => {
+    admin.firestore().collection("course")
+        .where("uid", "==", uid).get().then(async d => {
+            let data = []
+            await d.forEach(doc => {
+                data.push(doc.data())
+            })
+
+            return res.json({ success: true, data: data })
+
+        })
+        .catch((error) => {
+            console.log(error);
+            return res.json({ error: true, message: error })
+        })
+        .catch(err => {
+            console.log(err);
+            return res.json({ error: true, message: error })
+        })
 }
