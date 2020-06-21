@@ -46,7 +46,7 @@ const { createTeacherAccount,teacherLogin,teacherQuestionUpload } = require('./a
 
 app.post('/api/teacher/signUp', createTeacherAccount, createCookies)
 app.post('/api/teacher/login', teacherLogin, createCookies)
-app.post('/api/teacher/login', checkUser,teacherQuestionUpload)
+app.post('/api/teacher/upload', checkUser,teacherQuestionUpload)
 
 const {getCourse,getStream } = require('./course/course')
 
@@ -59,14 +59,16 @@ app.get('/api/stream/:id', getStream)
 
 
 
+app.post('/api/checkUser',checkUser,(req,res)=>{
+  return res.json({ success: true })
+})
+
 app.post('/api/logout', (req, res) => {
     res.clearCookie('token');
     return res.json({ success: true })
 })
 
-
-
-
+ 
 
 
 

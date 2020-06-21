@@ -11,11 +11,11 @@ var createdAt = dateFormat(now, "dddd, mmmm dS, yyyy, h:MM:ss TT")
 
 exports.signUp = (req, res, next) => {
 
-    const userEmailId = req.body.userEmailId
-    const userPassword = req.body.userPassword
+    const userEmailId = req.body.userEmail
+    const userPassword = req.body.conPass
 
     const userName = req.body.userName
-    const userPhoneNumber = req.body.userPhoneNumber
+    const userPhoneNumber = req.body.ph
     const fkUserRoleId = req.body.fkUserRoleId
 
     console.log(userEmailId, userPassword, userName);
@@ -49,10 +49,10 @@ exports.signUp = (req, res, next) => {
         console.log(error);
 
         var errorCode = error.code;
-        var errorMessage = error.message; 
+        var errorMessage = error.message;
         if (errorCode == 'auth/weak-password') {
             return res.json({ error: true, message: 'The password is too weak. Use minimum 6 digit' });
-        }else if(errorCode == 'auth/invalid-email') {
+        } else if (errorCode == 'auth/invalid-email') {
             return res.json({ error: true, message: 'Please enter a valid email address' });
         } else {
             return res.json({ error: true, message: errorMessage });
@@ -85,7 +85,7 @@ exports.login = (req, res, next) => {
                         req.token = idToken
                         return next()
                     }
-                }) .catch((error) => {
+                }).catch((error) => {
                     console.log(error);
                     return res.json({ error: true, message: error })
                 });
@@ -100,13 +100,13 @@ exports.login = (req, res, next) => {
         console.log(error);
         // Handle Errors here.
         var errorCode = error.code;
-        var errorMessage = error.message; 
+        var errorMessage = error.message;
         if (errorCode == 'auth/wrong-password') {
             return res.json({ error: true, message: 'Invalid Email Address or Password' });
-        }else if(errorCode=='auth/user-not-found'){
+        } else if (errorCode == 'auth/user-not-found') {
             return res.json({ error: true, message: 'Invalid Email Address or Password' });
-        
-        }else{
+
+        } else {
             return res.json({ error: true, message: errorMessage });
         }
     });
@@ -137,23 +137,24 @@ exports.createCookies = (req, res) => {
             return res.status(401).json({ error: true, message: 'REQUEST FAILED! UNAUTHORIZED  );' });
         });
 }
+
 exports.checkUser = (req, res, next) => {
 
-    const sessionCookie = req.signedCookies.token || ''; 
-  
+    const sessionCookie = req.signedCookies.token || '';
+// console.log(sessionCookie);
+
     admin.auth().verifySessionCookie(
-      sessionCookie, true /** checkRevoked */)
-      .then((decodedClaims) => {
-        // console.log(decodedClaims);
-        
-        req.uid=(decodedClaims.uid)
-        req.email=(decodedClaims.email)
-        
-        next()
-      })
-      .catch(error => {
-        console.log(error.code);
-        return res.json({ error: true, message: error.code })
-      });
-  }
-  
+        sessionCookie, true /** checkRevoked */)
+        .then((decodedClaims) => {
+            // console.log(decodedClaims);
+
+            req.uid = (decodedClaims.uid)
+            req.email = (decodedClaims.email)
+
+           return next()
+        })
+        .catch(error => {
+            console.log(error.code);
+            return res.json({ error: true, message: error.code })
+        });
+}
