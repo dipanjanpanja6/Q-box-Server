@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"nodemon start"
+    "start": "nodemon start"
   },
   "repository": {
     "type": "git",
@@ -15,10 +15,12 @@
   "license": "ISC",
   "dependencies": {
     "async": "^3.2.0",
+    "aws-sdk": "^2.704.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dateformat": "^3.0.3",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.3",
     "express-useragent": "^1.0.13",

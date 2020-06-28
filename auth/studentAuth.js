@@ -142,19 +142,31 @@ exports.checkUser = (req, res, next) => {
 
     const sessionCookie = req.signedCookies.token || '';
 // console.log(sessionCookie);
-
+if(sessionCookie==='' || sessionCookie===null){
+    return res.json({ error: true, message: 'not logged in' })
+}
     admin.auth().verifySessionCookie(
         sessionCookie, true /** checkRevoked */)
         .then((decodedClaims) => {
-            // console.log(decodedClaims);
+            admin.firestore().collection("students")
+                .where("uid", "==", decodedClaims.uid).limit(1).get().then(d => {
+                    if (d.empty) {
+                        return res.json({ error: true, message: 'not logged in' })
+                    } else {
+                        req.uid = (decodedClaims.uid)
+                        req.email = (decodedClaims.email)
 
-            req.uid = (decodedClaims.uid)
-            req.email = (decodedClaims.email)
+                        return next()
 
-           return next()
+                    }
+                }).catch(r => {
+                    console.log(r)
+                    return res.json({ error: true, message: r.code })
+                }
+                )
         })
         .catch(error => {
-            console.log(error.code);
-            return res.json({ error: true, message: error.code })
+            console.log(error);
+            return res.json({ error: true, message: error.code }) 
         });
 }

@@ -1,5 +1,6 @@
 const express = require('express')
 const cross = require('cors')
+require('dotenv').config();
 const useragent = require('express-useragent')
 const fileUpload = require('express-fileupload')
 const fs = require('fs');
@@ -29,7 +30,8 @@ app.use(cross({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cookieParser("cookies_secret_##$$123@@"));
+app.use(cookieParser("cookies_secret_##$$123@@")); 
+app.use(fileUpload());
 
 // ############################StudentAccount################################
 
@@ -42,20 +44,38 @@ app.post('/api/login', login, createCookies)
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@TeacherAccount@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-const { createTeacherAccount,teacherLogin,teacherQuestionUpload } = require('./auth/teacherAuth')
+const { createTeacherAccount,teacherLogin,teacherQuestionUpload, checkTeacher } = require('./auth/teacherAuth')
 
 app.post('/api/teacher/signUp', createTeacherAccount, createCookies)
 app.post('/api/teacher/login', teacherLogin, createCookies)
 app.post('/api/teacher/upload', checkUser,teacherQuestionUpload)
 
-const {getCourse,getStream } = require('./course/course')
+const {getCourse,getStreamByCourseName,getSubject,uploadVideo,uploadImage,createQuestion,uploadVideoQB,createQBookTopic } = require('./course/course')
 
 app.get('/api/course', getCourse)
-app.get('/api/stream/:id', getStream)
+app.post('/api/getstream', getStreamByCourseName)
+
+app.post('/api/getsubject', getSubject)
+
+// app.post('/api/upload/video',checkTeacher,uploadVideo)
+// app.post('/api/upload/image',checkTeacher,uploadImage)
+
+app.post('/api/upload/qbank',checkTeacher,uploadImage,uploadVideo,createQuestion)
+app.post('/api/upload/qbook',checkTeacher,uploadVideoQB,createQBookTopic)
+
+// app.post('/api/upload/qbank',checkTeacher,createQuestion)
+// app.post('/api/upload/qbook',checkTeacher,createQuestion)
 
 
 
 
+app.post('/api/teacher/checkUser',checkTeacher,(req,res)=>{
+  return res.json({ success: true })
+})
+app.post('/api/teacher/logout', (req, res) => {
+    res.clearCookie('token');
+    return res.json({ success: true })
+})
 
 
 

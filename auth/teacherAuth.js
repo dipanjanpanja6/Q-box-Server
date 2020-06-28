@@ -113,6 +113,8 @@ exports.teacherLogin = (req, res, next) => {
 
 }
 
+
+
 exports.teacherQuestionUpload = (req, res) => {
     const uid = req.uid
     const email = req.email
@@ -150,23 +152,42 @@ exports.teacherQuestionUpload = (req, res) => {
     })
 }
 
-exports.course = (req, res) => {
-    admin.firestore().collection("course")
-        .where("uid", "==", uid).get().then(async d => {
-            let data = []
-            await d.forEach(doc => {
-                data.push(doc.data())
-            })
 
-            return res.json({ success: true, data: data })
 
+
+
+
+exports.checkTeacher = (req, res, next) => {
+
+    const sessionCookie = req.signedCookies.token || '';
+    // console.log(sessionCookie);
+    if (sessionCookie === '' || sessionCookie === null) {
+        return res.json({ error: true, message: 'not logged in' })
+    }
+    admin.auth().verifySessionCookie(
+        sessionCookie, true /** checkRevoked */)
+        .then((decodedClaims) => {
+            // console.log(decodedClaims);
+            
+            admin.firestore().collection("teacher")
+                .where("uid", "==", decodedClaims.uid).limit(1).get().then(d => {
+                    if (d.empty) {
+                        return res.json({ error: true, message: 'not logged in' })
+                    } else {
+                        req.uid = (decodedClaims.uid)
+                        req.email = (decodedClaims.email)
+
+                        return next()
+
+                    }
+                }).catch(r => {
+                    console.log(r)
+                    return res.json({ error: true, message: r.code })
+                }
+                )
         })
-        .catch((error) => {
+        .catch(error => {
             console.log(error);
-            return res.json({ error: true, message: error })
-        })
-        .catch(err => {
-            console.log(err);
-            return res.json({ error: true, message: error })
-        })
+            return res.json({ error: true, message: error.code })
+        });
 }
