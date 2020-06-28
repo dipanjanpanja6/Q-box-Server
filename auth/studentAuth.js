@@ -151,7 +151,7 @@ if(sessionCookie==='' || sessionCookie===null){
             admin.firestore().collection("students")
                 .where("uid", "==", decodedClaims.uid).limit(1).get().then(d => {
                     if (d.empty) {
-                        return res.json({ error: true, message: 'not logged in' })
+                        return res.json({ error: true, message: 'Student not logged in' })
                     } else {
                         req.uid = (decodedClaims.uid)
                         req.email = (decodedClaims.email)
