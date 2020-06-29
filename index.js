@@ -12,7 +12,17 @@ const PORT = process.env.PORT || 7000;
 
 var app = express()
 
-var whitelist = ['http://qrioctybox.com', 'http://www.qrioctybox.com', 'http://tutor.qrioctybox.com', 'http://208.109.12.146','http://localhost',]
+var whitelist = [
+  'https://qrioctybox.com',
+'https://www.qrioctybox.com',
+ 'https://tutor.qrioctybox.com', 
+ 
+ 'http://qrioctybox.com',
+ 'http://www.qrioctybox.com',
+  'http://tutor.qrioctybox.com',
+  'http://208.109.12.146',
+  'http://localhost',
+]
 app.use(cross({
     origin: function(origin, callback){
       // allow requests with no origin 
