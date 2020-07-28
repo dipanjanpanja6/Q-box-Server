@@ -92,14 +92,12 @@ exports.createQBookTopic = (req, res) => {
   const id = req.id
   let data = JSON.parse(req.body.document)
 
-  // if (data.noImage === false) {
-  //   data.image_uri = req.image_uri
-  // }
   if (data.noVideo === false) {
     data.video_uri = req.video_uri
   }
   data.createdAt = createdAt
   data.uid = req.uid
+  data.approve=null
   data.key = id
   admin.firestore().collection("QBook").doc().set(data).then(async data => {
 
@@ -113,7 +111,7 @@ exports.createQBookTopic = (req, res) => {
   })
  
 }
-exports.uploadVideoQB = (req, res, next) => {
+exports.uploadVideoQB = async(req, res, next) => {
   const data = JSON.parse(req.body.document)
   const image_id = randomId(10, 'Aa0')
   if (data.noVideo === false) {
@@ -138,7 +136,7 @@ exports.uploadVideoQB = (req, res, next) => {
         }
       };
 
-      s3.upload(file, async (error, response) => {
+     await s3.upload(file, async (error, response) => {
         if (error) { return res.status(405).json({ error: true, message: "Video upload failed", id: error }); }
         else if (response == "") { return res.status(405).json({ error: true, message: "Video upload failed" }); }
         else {
@@ -172,6 +170,7 @@ exports.createQuestion = (req, res) => {
   }
   data.createdAt = createdAt
   data.uid = req.uid
+  data.approve=null
   data.key = id
   admin.firestore().collection("Qbank").doc().set(data).then(async data => {
 
@@ -212,7 +211,7 @@ exports.uploadVideo = async(req, res, next) => {
         }
       };
 
-      s3.upload(file, async (error, response) => {
+     await s3.upload(file, async (error, response) => {
         if (error) { return res.status(405).json({ error: true, message: "Video upload failed", id: error }); }
         else if (response == "") { return res.status(405).json({ error: true, message: "Video upload failed" }); }
         else {
@@ -231,53 +230,6 @@ exports.uploadVideo = async(req, res, next) => {
     return next()
   }
 }
-// exports.uploadImage = (req, res, next) => {
-//   const data = JSON.parse(req.body.document)
-//   if (data.noImage === false) {
-
-//     const files = req.files.image;
-//     // console.log(files);
-//     const mimetype = files.mimetype;
-//     const type = mimetype.split("/")[0];
-//     const image_id = randomId(32, "aA0");
-
-//     if (type == "image") {
-
-//       const s3 = new AWS.S3({
-//         accessKeyId: ID,
-//         secretAccessKey: SECRET,
-//       });
-
-//       const file = {
-//         Bucket: BUCKET_NAME_PIC,
-//         Key: `questions/${image_id}`,
-//         Body: files.data,
-//         Metadata: {
-//           'Content-Type': mimetype
-//         }
-//       };
-
-//       s3.upload(file, async (error, response) => {
-//         if (error) { return res.status(405).json({ error: true, message: "Image upload failed", id: error }); }
-//         else if (response == "") { return res.status(405).json({ error: true, message: "Image upload failed" }); }
-//         else {
-//           var file_url = await response.Location;
-//           // console.log(response);
-//           req.image_uri = file_url;
-//           req.id = image_id
-//           return next()
-//         }
-//       });
-//     } else {
-//       return res.json({ error: true, message: 'Image file is not a image file' })
-//     }
-//   } else {
-//     req.id = image_id
-//     return next()
-//   }
-// }
-
-
 
 exports.createMonthlyTest = (req, res) => { 
   let data = req.body.data
@@ -286,7 +238,7 @@ exports.createMonthlyTest = (req, res) => {
 
   data.createdAt = createdAt
   data.uid = req.uid 
-  data.approve=false
+  data.approve=null
   admin.firestore().collection("MonthlyTest").doc().set(data).then(async data => {
 
 
@@ -305,7 +257,7 @@ exports.createWeeklyTest = (req, res) => {
 
   data.createdAt = createdAt
   data.uid = req.uid 
-  data.approve=false
+  data.approve=null
   admin.firestore().collection("WeeklyTest").doc().set(data).then(async data => {
     return res.json({ success: true })
   }).catch((error) => {
