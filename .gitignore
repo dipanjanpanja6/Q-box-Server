@@ -1,1 +1,6 @@
 node_modules
+.env
+.firebase
+firestore.rules
+package-lock.json
+/back end master.rar

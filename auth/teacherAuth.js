@@ -19,20 +19,23 @@ exports.createTeacherAccount = (req, res, next) => {
     const userEmailId = req.body.userEmailId
     const userPassword = req.body.userPassword
     const userName = req.body.userName
-    // const userPhoneNumber= req.body.userPhoneNumber
+    const stream= req.body.stream
+    const subject= req.body.subject
     const fkUserRoleId = req.body.fkUserRoleId
 
 
     console.log(userEmailId, userPassword, userName);
     if (fkUserRoleId !== 9) { return res.json({ error: true, message: 'Unauthorized Access' }) }
 
-    if (userEmailId == "" || userPassword == "" || userName == "") return res.json({ error: true, message: "First input your credential" })
+    if (userEmailId == "" || userPassword == "" || userName == "" || stream===[] || subject===[]) return res.json({ error: true, message: "First input your credential" })
 
     firebase.auth().createUserWithEmailAndPassword(userEmailId, userPassword).then(d => {
         console.log(d.user.uid);
         admin.firestore().doc(`/teacher/${d.user.uid}`).set({
             userName,
             // userPhoneNumber,
+            stream,
+            subject,
             userEmailId,
             createdAt: createdAt,
             uid: d.user.uid,
@@ -168,7 +171,7 @@ exports.checkTeacher = (req, res, next) => {
         sessionCookie, true /** checkRevoked */)
         .then((decodedClaims) => {
             // console.log(decodedClaims);
-            
+
             admin.firestore().collection("teacher")
                 .where("uid", "==", decodedClaims.uid).limit(1).get().then(d => {
                     if (d.empty) {

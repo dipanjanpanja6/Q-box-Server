@@ -173,7 +173,7 @@ exports.createQuestion = (req, res) => {
   data.createdAt = createdAt
   data.uid = req.uid
   data.key = id
-  admin.firestore().collection("question").doc().set(data).then(async data => {
+  admin.firestore().collection("Qbank").doc().set(data).then(async data => {
 
     console.log(data);
 
@@ -185,15 +185,17 @@ exports.createQuestion = (req, res) => {
   })
  
 }
-exports.uploadVideo = (req, res, next) => {
+exports.uploadVideo = async(req, res, next) => {
   const data = JSON.parse(req.body.document)
+  const image_id =randomId(32, "aA0");
+  req.id = image_id;
+
   if (data.noVideo === false) {
 
     const files = req.files.video;
     // console.log(files);
     const mimetype = files.mimetype;
     const type = mimetype.split("/")[0];
-    const image_id = req.id
 
     if (type == "video") {
       const s3 = new AWS.S3({
@@ -229,48 +231,86 @@ exports.uploadVideo = (req, res, next) => {
     return next()
   }
 }
-exports.uploadImage = (req, res, next) => {
-  const data = JSON.parse(req.body.document)
-  if (data.noImage === false) {
+// exports.uploadImage = (req, res, next) => {
+//   const data = JSON.parse(req.body.document)
+//   if (data.noImage === false) {
 
-    const files = req.files.image;
-    // console.log(files);
-    const mimetype = files.mimetype;
-    const type = mimetype.split("/")[0];
-    const image_id = randomId(32, "aA0");
+//     const files = req.files.image;
+//     // console.log(files);
+//     const mimetype = files.mimetype;
+//     const type = mimetype.split("/")[0];
+//     const image_id = randomId(32, "aA0");
 
-    if (type == "image") {
+//     if (type == "image") {
 
-      const s3 = new AWS.S3({
-        accessKeyId: ID,
-        secretAccessKey: SECRET,
-      });
+//       const s3 = new AWS.S3({
+//         accessKeyId: ID,
+//         secretAccessKey: SECRET,
+//       });
 
-      const file = {
-        Bucket: BUCKET_NAME_PIC,
-        Key: `questions/${image_id}`,
-        Body: files.data,
-        Metadata: {
-          'Content-Type': mimetype
-        }
-      };
+//       const file = {
+//         Bucket: BUCKET_NAME_PIC,
+//         Key: `questions/${image_id}`,
+//         Body: files.data,
+//         Metadata: {
+//           'Content-Type': mimetype
+//         }
+//       };
 
-      s3.upload(file, async (error, response) => {
-        if (error) { return res.status(405).json({ error: true, message: "Image upload failed", id: error }); }
-        else if (response == "") { return res.status(405).json({ error: true, message: "Image upload failed" }); }
-        else {
-          var file_url = await response.Location;
-          // console.log(response);
-          req.image_uri = file_url;
-          req.id = image_id
-          return next()
-        }
-      });
-    } else {
-      return res.json({ error: true, message: 'Image file is not a image file' })
-    }
-  } else {
-    req.id = image_id
-    return next()
-  }
+//       s3.upload(file, async (error, response) => {
+//         if (error) { return res.status(405).json({ error: true, message: "Image upload failed", id: error }); }
+//         else if (response == "") { return res.status(405).json({ error: true, message: "Image upload failed" }); }
+//         else {
+//           var file_url = await response.Location;
+//           // console.log(response);
+//           req.image_uri = file_url;
+//           req.id = image_id
+//           return next()
+//         }
+//       });
+//     } else {
+//       return res.json({ error: true, message: 'Image file is not a image file' })
+//     }
+//   } else {
+//     req.id = image_id
+//     return next()
+//   }
+// }
+
+
+
+exports.createMonthlyTest = (req, res) => { 
+  let data = req.body.data
+
+  console.log(data);
+
+  data.createdAt = createdAt
+  data.uid = req.uid 
+  data.approve=false
+  admin.firestore().collection("MonthlyTest").doc().set(data).then(async data => {
+
+
+    return res.json({ success: true })
+
+  }).catch((error) => {
+    console.log(error);
+    return res.json({ error: true, message: error })
+  })
+ 
+}
+exports.createWeeklyTest = (req, res) => {
+  let data = req.body.data
+
+  console.log(data);
+
+  data.createdAt = createdAt
+  data.uid = req.uid 
+  data.approve=false
+  admin.firestore().collection("WeeklyTest").doc().set(data).then(async data => {
+    return res.json({ success: true })
+  }).catch((error) => {
+    console.log(error);
+    return res.json({ error: true, message: error })
+  })
+ 
 }
