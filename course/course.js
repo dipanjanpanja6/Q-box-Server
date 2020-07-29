@@ -2,6 +2,7 @@ const { admin } = require('../config/admin')
 const firebase = require('firebase')
 const randomId = require('random-id')
 const dateFormat = require('dateformat')
+const Busboy = require('busboy')
 
 var now = new Date();
 var dates = dateFormat(now, "ddd");
@@ -97,7 +98,7 @@ exports.createQBookTopic = (req, res) => {
   }
   data.createdAt = createdAt
   data.uid = req.uid
-  data.approve=null
+  data.approve = null
   data.key = id
   admin.firestore().collection("QBook").doc().set(data).then(async data => {
 
@@ -109,52 +110,164 @@ exports.createQBookTopic = (req, res) => {
     console.log(error);
     return res.json({ error: true, message: error })
   })
- 
+
 }
-exports.uploadVideoQB = async(req, res, next) => {
-  const data = JSON.parse(req.body.document)
-  const image_id = randomId(10, 'Aa0')
-  if (data.noVideo === false) {
+exports.uploadVideoQB = async (req, res, next) => {
+   var busboy = new Busboy({ headers: req.headers });
+  var video_uri = null 
 
-    const files = req.files.video;
-    // console.log(files);
-    const mimetype = files.mimetype;
-    const type = mimetype.split("/")[0];
+    console.dir(req.headers['content-type'])
 
-    if (type == "video") {
-      const s3 = new AWS.S3({
-        accessKeyId: ID,
+   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+    console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+     var s3 = new AWS.S3({
+      accessKeyId: ID,
         secretAccessKey: SECRET,
+      params: { Bucket: BUCKET_NAME_VID, Key: filename, Body: file },
+      options: { partSize: 5 * 1024 * 1024, queueSize: 10 }   // 5 MB
+    }); 
+      s3.upload().on('httpUploadProgress', function (evt) {
+        // console.log("s3",evt);
+      }).send(function (err, data) {
+        video_uri=data.Location
+        console.log(err, data);
       });
+    });
+  
+  busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+    console.log('Field [' + fieldname + ']: value: ' + val);
+    const data = JSON.parse(val)
 
-      const file = {
-        Bucket: BUCKET_NAME_VID,
-        Key: `QBook/${image_id}`,
-        Body: files.data,
-        Metadata: {
-          'Content-Type': mimetype
-        }
-      };
-
-     await s3.upload(file, async (error, response) => {
-        if (error) { return res.status(405).json({ error: true, message: "Video upload failed", id: error }); }
-        else if (response == "") { return res.status(405).json({ error: true, message: "Video upload failed" }); }
-        else {
-          var file_url = await response.Location;
-          console.log(file_url);
-          req.video_uri = file_url;
-          req.id = image_id
-          return next()
-        }
-      });
-    } else {
-      return res.json({ error: true, message: 'Video file is not a Video file' })
+    if (data.noVideo === false) {
+      data.video_uri = video_uri
     }
-  } else {
-    req.id = image_id
-    return next()
-  }
+    data.createdAt = createdAt
+    data.uid = req.uid
+    data.approve = null
+    data.key = randomId(5,'Aa0')
+    admin.firestore().collection("QBook").doc().set(data).then(async data => {
+  
+      console.log(data);
+  
+      return res.json({ ok: data })
+  
+    }).catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error })
+    })
+
+
+
+  });
+
+ await busboy.on('finish', function () {
+    console.log('Done parsing form!');
+    return res.json({success:true })
+    
+  });
+  req.pipe(busboy);
+
+
+
+
+
+
+
+  // const data = JSON.parse(req.body.document)
+  // const image_id = randomId(10, 'Aa0')
+  // if (data.noVideo === false) {
+
+  //   const files = req.files.video;
+  //   console.log(files);
+  //   const mimetype = files.mimetype;
+  //   const type = mimetype.split("/")[0];
+
+  //   if (type == "video") {
+  //     const s3 = new AWS.S3({
+  //       accessKeyId: ID,
+  //       secretAccessKey: SECRET,
+  //     });
+
+  //     const file = {
+  //       Bucket: BUCKET_NAME_VID,
+  //       Key: `QBook/${image_id}`,
+  //       Body: files.data,
+  //       Metadata: {
+  //         'Content-Type': mimetype
+  //       }
+  //     };
+
+  //    await s3.upload(file, async (error, response) => {
+  //       if (error) { return res.status(405).json({ error: true, message: "Video upload failed", id: error }); }
+  //       else if (response == "") { return res.status(405).json({ error: true, message: "Video upload failed" }); }
+  //       else {
+  //         var file_url = await response.Location;
+  //         console.log(file_url);
+  //         req.video_uri = file_url;
+  //         req.id = image_id
+  //         return next()
+  //       }
+  //     });
+  //   } else {
+  //     return res.json({ error: true, message: 'Video file is not a Video file' })
+  //   }
+
+
+
+
+
+
+
+  // } else {
+  //   req.id = image_id
+  //   return next()
+  // }
 }
+// exports.uploadVideoQB = async(req, res, next) => { 
+
+//   const data = JSON.parse(req.body.document)
+//   const image_id = randomId(10, 'Aa0')
+//   if (data.noVideo === false) {
+
+//     const files = req.files.video;
+//     console.log(files);
+//     const mimetype = files.mimetype;
+//     const type = mimetype.split("/")[0];
+
+//     if (type == "video") {
+//       const s3 = new AWS.S3({
+//         accessKeyId: ID,
+//         secretAccessKey: SECRET,
+//       });
+
+//       const file = {
+//         Bucket: BUCKET_NAME_VID,
+//         Key: `QBook/${image_id}`,
+//         Body: files.data,
+//         Metadata: {
+//           'Content-Type': mimetype
+//         }
+//       };
+
+//      await s3.upload(file, async (error, response) => {
+//         if (error) { return res.status(405).json({ error: true, message: "Video upload failed", id: error }); }
+//         else if (response == "") { return res.status(405).json({ error: true, message: "Video upload failed" }); }
+//         else {
+//           var file_url = await response.Location;
+//           console.log(file_url);
+//           req.video_uri = file_url;
+//           req.id = image_id
+//           return next()
+//         }
+//       });
+//     } else {
+//       return res.json({ error: true, message: 'Video file is not a Video file' })
+//     }
+//   } else {
+//     req.id = image_id
+//     return next()
+//   }
+// }
 
 
 
@@ -170,7 +283,7 @@ exports.createQuestion = (req, res) => {
   }
   data.createdAt = createdAt
   data.uid = req.uid
-  data.approve=null
+  data.approve = null
   data.key = id
   admin.firestore().collection("Qbank").doc().set(data).then(async data => {
 
@@ -182,11 +295,11 @@ exports.createQuestion = (req, res) => {
     console.log(error);
     return res.json({ error: true, message: error })
   })
- 
+
 }
-exports.uploadVideo = async(req, res, next) => {
+exports.uploadVideo = async (req, res, next) => {
   const data = JSON.parse(req.body.document)
-  const image_id =randomId(32, "aA0");
+  const image_id = randomId(32, "aA0");
   req.id = image_id;
 
   if (data.noVideo === false) {
@@ -211,7 +324,7 @@ exports.uploadVideo = async(req, res, next) => {
         }
       };
 
-     await s3.upload(file, async (error, response) => {
+      await s3.upload(file, async (error, response) => {
         if (error) { return res.status(405).json({ error: true, message: "Video upload failed", id: error }); }
         else if (response == "") { return res.status(405).json({ error: true, message: "Video upload failed" }); }
         else {
@@ -231,14 +344,14 @@ exports.uploadVideo = async(req, res, next) => {
   }
 }
 
-exports.createMonthlyTest = (req, res) => { 
+exports.createMonthlyTest = (req, res) => {
   let data = req.body.data
 
   console.log(data);
 
   data.createdAt = createdAt
-  data.uid = req.uid 
-  data.approve=null
+  data.uid = req.uid
+  data.approve = null
   admin.firestore().collection("MonthlyTest").doc().set(data).then(async data => {
 
 
@@ -248,7 +361,7 @@ exports.createMonthlyTest = (req, res) => {
     console.log(error);
     return res.json({ error: true, message: error })
   })
- 
+
 }
 exports.createWeeklyTest = (req, res) => {
   let data = req.body.data
@@ -256,13 +369,13 @@ exports.createWeeklyTest = (req, res) => {
   console.log(data);
 
   data.createdAt = createdAt
-  data.uid = req.uid 
-  data.approve=null
+  data.uid = req.uid
+  data.approve = null
   admin.firestore().collection("WeeklyTest").doc().set(data).then(async data => {
     return res.json({ success: true })
   }).catch((error) => {
     console.log(error);
     return res.json({ error: true, message: error })
   })
- 
+
 }

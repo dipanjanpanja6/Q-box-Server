@@ -17,10 +17,9 @@ var whitelist = [
   'https://www.qrioctybox.com',
   'https://tutor.qrioctybox.com',
 
-  'http://qrioctybox.com',
-  'http://www.qrioctybox.com',
-  'http://tutor.qrioctybox.com',
-  'http://208.109.12.146',
+  // 'http://qrioctybox.com',
+  // 'http://www.qrioctybox.com',
+  // 'http://tutor.qrioctybox.com', 
   'http://localhost',
 ]
 app.use(cross({
@@ -41,7 +40,7 @@ app.use(cross({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser("cookies_secret_##$$123@@"));
-app.use(fileUpload());
+// app.use(fileUpload());
 
 
 
