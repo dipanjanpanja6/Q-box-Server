@@ -146,10 +146,7 @@ exports.uploadVideoQB = async (req, res, next) => {
     data.approve = null
     data.key = randomId(5,'Aa0')
     admin.firestore().collection("QBook").doc().set(data).then(async data => {
-  
-      console.log(data);
-  
-      return res.json({ ok: data })
+   
   
     }).catch((error) => {
       console.log(error);
