@@ -42,7 +42,7 @@ exports.getCourse = async (req, res) => {
 
 exports.getStreamByCourseName = async (req, res) => {
   const ID = req.body.courseValue
-  // console.log(36, ID);
+  console.log(36, ID);
 
   await admin.firestore().collection("stream").where("course", "array-contains-any", ID).get().then(async data => {
     if (data.empty) {
