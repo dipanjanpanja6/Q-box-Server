@@ -226,3 +226,321 @@ exports.createWeeklyTest = (req, res) => {
   })
 
 }
+
+
+
+
+
+
+
+
+
+
+//=========================================================
+// =============== ADMIN PART - {Start}=====================
+//=========================================================
+
+// -----------------> PENDING QUESTIONS
+// QBOOKQUESTION
+exports.getQbookQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("QBook")
+    .where("approve", "==", null)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently no Subject available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// QBANKQUESTION
+exports.getQbankkQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("Qbank")
+    .where("approve", "==", null)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently no Subject available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// WEEKYTEST
+exports.getWeeklyTextQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("WeeklyTest")
+    .where("approve", "==", null)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently no Subject available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// MONTHLYTEST
+exports.getMonthlyTextQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("MonthlyTest")
+    .where("approve", "==", null)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently no Subject available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// GET INDIVIDUAL QUESTION (req.params : qid, collect )
+exports.getQuestionToView = async (req, res) => {
+  await admin
+    .firestore()
+    .collection(req.params.collect)
+    .doc(req.params.qid)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.status(404).json({
+          error: true,
+          message: "No Question Found!",
+        });
+      } else {
+        var data = [data];
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error });
+    });
+};
+
+// APPROVE A QUESTION
+exports.ApproveQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection(req.params.collect)
+    .doc(req.params.qid)
+    .update({
+      approve: true,
+    })
+    .then(async (data) => {
+      return res.json({ success: true });
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error });
+    });
+};
+
+// REJECT A QUESTION
+exports.RejectQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection(req.params.collect)
+    .doc(req.params.qid)
+    .update({
+      approve: false,
+      rejectingcomment:
+        req.body.rejectingcomment !== ""
+          ? req.body.rejectingcomment
+          : "No Comment",
+    })
+    .then(async (data) => {
+      return res.json({ success: true });
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error });
+    });
+};
+
+// GETTING REJECTED QUESTION LIST
+exports.getQbookRejectedQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("QBook")
+    .where("approve", "==", false)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently No Question available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// QBANKQUESTION
+exports.getQbankkRejectedQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("Qbank")
+    .where("approve", "==", false)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently No Question available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// WEEKYTEST
+exports.getWeeklyTextRejectedQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("WeeklyTest")
+    .where("approve", "==", false)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently No Question available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// MONTHLYTEST
+exports.getMonthlyTextRejectedQuestion = async (req, res) => {
+  await admin
+    .firestore()
+    .collection("MonthlyTest")
+    .where("approve", "==", false)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: "Currently No Question available",
+        });
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, data: file });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+};
+
+// =============== ADMIN PART - {End}=====================

@@ -90,6 +90,59 @@ const { AdminLogin } = require('./auth/adminAuth');
 app.post('/api/admin/login', AdminLogin, createCookies)
 // app.post('/api/admin/check', AdminLogin, createCookies )
 
+// =======================================================================
+// ############################AdminAccount################################
+// const { AdminLogin } = require("./auth/adminAuth");
+const {
+  getQbookQuestion,
+  getQbankkQuestion,
+  getWeeklyTextQuestion,
+  getMonthlyTextQuestion,
+  getQuestionToView,
+  ApproveQuestion,
+  RejectQuestion,
+  getQbookRejectedQuestion,
+  getQbankkRejectedQuestion,
+  getWeeklyTextRejectedQuestion,
+  getMonthlyTextRejectedQuestion,
+} = require("./course/course");
+
+// app.post("/api/admin/login", AdminLogin, createCookies);
+// app.post('/api/admin/check', AdminLogin, createCookies )
+app.get("/api/course/admin/getqbookquestion", getQbookQuestion);
+app.get("/api/course/admin/getqbankquestion", getQbankkQuestion);
+app.get("/api/course/admin/getweeklytestquestion", getWeeklyTextQuestion);
+app.get("/api/course/admin/getmonthlytestquestion", getMonthlyTextQuestion);
+
+// GET SINGLE QUESTION
+app.get("/api/course/admin/getquestion/:collect/:qid", getQuestionToView);
+app.get("/api/course/admin/approvequestion/:collect/:qid", ApproveQuestion);
+app.post("/api/course/admin/rejectquestion/:collect/:qid", RejectQuestion);
+
+// GETTING REJECTED QUESTION
+app.get("/api/course/admin/getqbookrejectedquestion", getQbookRejectedQuestion);
+app.get(
+  "/api/course/admin/getqbankkrejectedquestion",
+  getQbankkRejectedQuestion
+);
+app.get(
+  "/api/course/admin/getweeklyrejectedquestion",
+  getWeeklyTextRejectedQuestion
+);
+app.get(
+  "/api/course/admin/getmonthlyrejectedquestion",
+  getMonthlyTextRejectedQuestion
+);
+
+// ===========================================================================
+
+
+
+
+
+
+
+
 /////////////////////////////////
 
 app.post('/api/checkUser', checkUser, (req, res) => {
