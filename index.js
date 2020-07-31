@@ -61,25 +61,19 @@ app.post('/api/teacher/signUp', createTeacherAccount, createCookies)
 app.post('/api/teacher/login', teacherLogin, createCookies)
 app.post('/api/teacher/upload', checkUser, teacherQuestionUpload)
 
-const {createWeeklyTest,createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideo, uploadImage, createQuestion, uploadVideoQB, createQBookTopic } = require('./course/course');
+const {createWeeklyTest,createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook,  } = require('./course/course');
 
 app.get('/api/course', getCourse)
 app.post('/api/getstream', getStreamByCourseName)
-app.post('/api/getsubject', getSubject)
+app.post('/api/getsubject', getSubject) 
 
-// app.post('/api/upload/video',checkTeacher,uploadVideo)
-// app.post('/api/upload/image',checkTeacher,uploadImage)
 
-app.post('/api/upload/qbank', checkTeacher, uploadVideo, createQuestion)
-app.post('/api/upload/qbook', checkTeacher, uploadVideoQB, createQBookTopic)
+app.post('/api/upload/qbank', checkTeacher, uploadVideoQBank)
+app.post('/api/upload/qbook', checkTeacher, uploadVideoQBook)
+
 
 app.post('/api/upload/weekly-test', checkTeacher, createWeeklyTest)
-app.post('/api/upload/monthly-test', checkTeacher, createMonthlyTest)
-
-// app.post('/api/upload/qbank',checkTeacher,createQuestion)
-// app.post('/api/upload/qbook',checkTeacher,createQuestion)
-
-
+app.post('/api/upload/monthly-test', checkTeacher, createMonthlyTest)  
 
 
 app.post('/api/teacher/checkUser', checkTeacher, (req, res) => {
