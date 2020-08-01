@@ -16,11 +16,13 @@ var whitelist = [
   'https://qrioctybox.com',
   'https://www.qrioctybox.com',
   'https://tutor.qrioctybox.com',
+  'https://admin.qrioctybox.com',
 
   // 'http://qrioctybox.com',
   // 'http://www.qrioctybox.com',
   'http://tutor.qrioctybox.com', 
   'http://localhost',
+  'http://localhost:3000',
 ]
 app.use(cross({
   origin: function (origin, callback) {

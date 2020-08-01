@@ -88,7 +88,7 @@ exports.getSubject = async (req, res) => {
 
 
 
- 
+
 exports.uploadVideoQBook = async (req, res, next) => {
   var key = randomId(10, 'Aa0')
   var busboy = new Busboy({ headers: req.headers });
@@ -101,7 +101,7 @@ exports.uploadVideoQBook = async (req, res, next) => {
     var s3 = new AWS.S3({
       accessKeyId: ID,
       secretAccessKey: SECRET,
-      params: { Bucket: BUCKET_NAME_VID, Key: `QBook/${key}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename } },
+      params: { Bucket: BUCKET_NAME_VID, Key: `QBook/${key}.${mimetype}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename, encoding: encoding } },
       options: { partSize: 5 * 1024 * 1024, queueSize: 10 }   // 5 MB
     });
     s3.upload().on('httpUploadProgress', function (evt) {
@@ -123,7 +123,7 @@ exports.uploadVideoQBook = async (req, res, next) => {
     data.approve = null
     data.key = key
     if (data.noVideo === false) {
-      data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBook/${key}`
+      data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBook/${key}.${data.type}`
     }
     console.log(data);
     admin.firestore().collection("QBook").doc().set(data).then(data => {
@@ -139,31 +139,37 @@ exports.uploadVideoQBook = async (req, res, next) => {
 
 }
 
- 
+
 exports.uploadVideoQBank = async (req, res, next) => {
 
   var key = randomId(10, 'Aa0')
   var busboy = new Busboy({ headers: req.headers });
 
-  var video_uri = ""
+  var video_uri, promise
   var data = {}
+  busboy.on("error", err => {
+    log.error(err);
+  });
 
-  await busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+  busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
     var s3 = new AWS.S3({
       accessKeyId: ID,
       secretAccessKey: SECRET,
-      params: { Bucket: BUCKET_NAME_VID, Key:`QBank/${key}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename } },
+      params: { Bucket: BUCKET_NAME_VID, Key: `QBank/${key}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename, encoding: encoding } },
       options: { partSize: 5 * 1024 * 1024, queueSize: 10 }   // 5 MB
     });
-    s3.upload().on('httpUploadProgress', function (evt) {
-    }).send(function (err, d) {
-      // video_uri = d.Location 
-      console.log(d.Location);
-    });
+    promise = new Promise((solve, reject) => {
+      s3.upload().on('httpUploadProgress', function (evt) {
+      }).send(function (err, d) {
+        video_uri = d.Location
+        solve( d.Location)
+        console.log(d.Location);
+      });
+    })
   });
 
-  await busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+  busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
     console.log('Field [' + fieldname + ']: value: ' + val);
     data = JSON.parse(val)
   });
@@ -174,16 +180,32 @@ exports.uploadVideoQBank = async (req, res, next) => {
     data.uid = req.uid
     data.approve = null
     data.key = key
+   
     if (data.noVideo === false) {
-      data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+      promise.then(
+        result => {
+          data.video_uri = result
+          // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+          admin.firestore().collection("Qbank").doc().set(data).then(data => {
+            return res.json({ success: true })
+          }).catch((error) => {
+            console.log(error);
+            return res.json({ error: true, message: error })
+          })
+          // console.log(result)
+        },
+        error => console.log(error)
+      )
+    }else{
+      admin.firestore().collection("Qbank").doc().set(data).then(data => {
+        return res.json({ success: true })
+      }).catch((error) => {
+        console.log(error);
+        return res.json({ error: true, message: error })
+      })
     }
     console.log(data);
-    admin.firestore().collection("Qbank").doc().set(data).then(data => {
-      return res.json({ success: true })
-    }).catch((error) => {
-      console.log(error);
-      return res.json({ error: true, message: error })
-    })
+ 
   });
 
   req.pipe(busboy);
