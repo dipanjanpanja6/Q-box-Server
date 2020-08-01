@@ -124,28 +124,32 @@ exports.uploadVideoQBook = async (req, res, next) => {
     data.key = key
 
     if (data.noVideo === false) {
-      promise.then(
-        result => {
-          data.video_uri = result
-          // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
-          admin.firestore().collection("QBook").doc().set(data).then(data => {
-            return res.json({ success: true })
-          }).catch((error) => {
-            console.log(error);
-            return res.json({ error: true, message: error })
-          })
-          // console.log(result)
-        },
-        error => console.log(error)
-      )
-    }else{
+            data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+             
+
+    }
+    //   promise.then(
+    //     result => {
+    //       data.video_uri = result
+    //       // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+    //       admin.firestore().collection("QBook").doc().set(data).then(data => {
+    //         return res.json({ success: true })
+    //       }).catch((error) => {
+    //         console.log(error);
+    //         return res.json({ error: true, message: error })
+    //       })
+    //       // console.log(result)
+    //     },
+    //     error => console.log(error)
+    //   )
+    // }else{
       admin.firestore().collection("QBook").doc().set(data).then(data => {
         return res.json({ success: true })
       }).catch((error) => {
         console.log(error);
         return res.json({ error: true, message: error })
       })
-    }
+    // }
 
 
    
@@ -199,28 +203,31 @@ exports.uploadVideoQBank = async (req, res, next) => {
     data.key = key
    
     if (data.noVideo === false) {
-      promise.then(
-        result => {
-          data.video_uri = result
-          // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
-          admin.firestore().collection("Qbank").doc().set(data).then(data => {
-            return res.json({ success: true })
-          }).catch((error) => {
-            console.log(error);
-            return res.json({ error: true, message: error })
-          })
-          // console.log(result)
-        },
-        error => console.log(error)
-      )
-    }else{
+            data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+
+    }
+    //   promise.then(
+    //     result => {
+    //       data.video_uri = result
+    //       // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+    //       admin.firestore().collection("Qbank").doc().set(data).then(data => {
+    //         return res.json({ success: true })
+    //       }).catch((error) => {
+    //         console.log(error);
+    //         return res.json({ error: true, message: error })
+    //       })
+    //       // console.log(result)
+    //     },
+    //     error => console.log(error)
+    //   )
+    // }else{
       admin.firestore().collection("Qbank").doc().set(data).then(data => {
         return res.json({ success: true })
       }).catch((error) => {
         console.log(error);
         return res.json({ error: true, message: error })
       })
-    }
+    // }
     console.log(data);
  
   });
