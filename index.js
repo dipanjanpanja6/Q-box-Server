@@ -20,7 +20,7 @@ var whitelist = [
 
   // 'http://qrioctybox.com',
   // 'http://www.qrioctybox.com',
-  // 'http://tutor.qrioctybox.com', 
+  'http://tutor.qrioctybox.com', 
   'http://localhost',
   'http://localhost:3000',
 ]
