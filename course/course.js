@@ -122,16 +122,33 @@ exports.uploadVideoQBook = async (req, res, next) => {
     data.uid = req.uid
     data.approve = null
     data.key = key
+
     if (data.noVideo === false) {
-      data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBook/${key}.${data.type}`
+      promise.then(
+        result => {
+          data.video_uri = result
+          // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+          admin.firestore().collection("QBook").doc().set(data).then(data => {
+            return res.json({ success: true })
+          }).catch((error) => {
+            console.log(error);
+            return res.json({ error: true, message: error })
+          })
+          // console.log(result)
+        },
+        error => console.log(error)
+      )
+    }else{
+      admin.firestore().collection("QBook").doc().set(data).then(data => {
+        return res.json({ success: true })
+      }).catch((error) => {
+        console.log(error);
+        return res.json({ error: true, message: error })
+      })
     }
-    console.log(data);
-    admin.firestore().collection("QBook").doc().set(data).then(data => {
-      return res.json({ success: true })
-    }).catch((error) => {
-      console.log(error);
-      return res.json({ error: true, message: error })
-    })
+
+
+   
 
   });
 
