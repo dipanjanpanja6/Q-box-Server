@@ -101,7 +101,7 @@ exports.uploadVideoQBook = async (req, res, next) => {
     var s3 = new AWS.S3({
       accessKeyId: ID,
       secretAccessKey: SECRET,
-      params: { Bucket: BUCKET_NAME_VID, Key: `QBook/${key}.${mimetype}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename, encoding: encoding } },
+      params: { Bucket: BUCKET_NAME_VID, Key: `QBook/${key}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename, encoding: encoding } },
       options: { partSize: 5 * 1024 * 1024, queueSize: 10 }   // 5 MB
     });
     s3.upload().on('httpUploadProgress', function (evt) {
@@ -183,7 +183,7 @@ exports.uploadVideoQBank = async (req, res, next) => {
     promise = new Promise((solve, reject) => {
       s3.upload().on('httpUploadProgress', function (evt) {
       }).send(function (err, d) {
-        video_uri = d.Location
+        // video_uri = d.Location
         solve( d.Location)
         console.log(d.Location);
       });
