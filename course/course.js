@@ -145,7 +145,7 @@ exports.uploadVideoQBook = async (req, res, next) => {
     // }else{
       admin.firestore().collection("QBook").doc().set(data).then(data => {
         return res.json({ success: true })
-      }).catch((error) => {
+      }).then(d=>{console.log(d)}).catch((error) => {
         console.log(error);
         return res.json({ error: true, message: error })
       })
