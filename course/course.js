@@ -93,9 +93,13 @@ exports.uploadVideoQBook = async (req, res, next) => {
   var key = randomId(10, 'Aa0')
   var busboy = new Busboy({ headers: req.headers });
 
-  var video_uri = ""
+  var video_url  
   var data = {}
 
+  busboy.on("error", err => {
+    log.error(err);
+    return res.json({error:true,message:'upload failed. pipeline failed'})
+  });
   await busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
     var s3 = new AWS.S3({
@@ -106,8 +110,14 @@ exports.uploadVideoQBook = async (req, res, next) => {
     });
     s3.upload().on('httpUploadProgress', function (evt) {
     }).send(function (err, d) {
-      // video_uri = d.Location 
-      console.log(d.Location);
+      video_url = d.Location 
+      console.log(d.Location); 
+        admin.firestore().collection("QBook").doc(key).set({
+          video_uri:d.Location
+        },{merge:true}).then(d=>console.log(key)) .catch((error) => {
+          console.log(error); 
+        })
+      
     });
   });
 
@@ -116,7 +126,7 @@ exports.uploadVideoQBook = async (req, res, next) => {
     data = JSON.parse(val)
   });
 
-  busboy.on('finish', function () {
+  busboy.on('finish',async function () {
     console.log('Done parsing form!');
     data.createdAt = createdAt
     data.uid = req.uid
@@ -124,9 +134,8 @@ exports.uploadVideoQBook = async (req, res, next) => {
     data.key = key
 
     if (data.noVideo === false) {
-            data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
-             
-
+            data.video_uri =video_url ?video_url:`https://raw-video-qrioctybox.s3.ap-south-1.amazonaws.com/${key}`
+ 
     }
     //   promise.then(
     //     result => {
@@ -143,17 +152,15 @@ exports.uploadVideoQBook = async (req, res, next) => {
     //     error => console.log(error)
     //   )
     // }else{
-      admin.firestore().collection("QBook").doc().set(data).then(data => {
+      admin.firestore().collection("QBook").doc(key).set(data).then(data => {
         return res.json({ success: true })
-      }).then(d=>{console.log(d)}).catch((error) => {
+      }) .catch((error) => {
         console.log(error);
         return res.json({ error: true, message: error })
-      })
+      }) 
+
     // }
-
-
-   
-
+ 
   });
 
   req.pipe(busboy);
@@ -166,10 +173,13 @@ exports.uploadVideoQBank = async (req, res, next) => {
   var key = randomId(10, 'Aa0')
   var busboy = new Busboy({ headers: req.headers });
 
-  var video_uri, promise
+  var video_url
   var data = {}
+
   busboy.on("error", err => {
     log.error(err);
+    return res.json({error:true,message:'upload failed. pipeline failed'})
+
   });
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
@@ -179,18 +189,19 @@ exports.uploadVideoQBank = async (req, res, next) => {
       secretAccessKey: SECRET,
       params: { Bucket: BUCKET_NAME_VID, Key: `QBank/${key}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename, encoding: encoding } },
       options: { partSize: 5 * 1024 * 1024, queueSize: 10 }   // 5 MB
-    });
-    promise = new Promise((solve, reject) => {
+    }); 
       s3.upload().on('httpUploadProgress', function (evt) {
-      }).send(function (err, d) {
-        // video_uri = d.Location
-        solve( d.Location)
+      }).send(function (err, d) { 
         console.log(d.Location);
+video_url=video_urd.Location
+        admin.firestore().collection("Qbank").doc(key).set({video_uri:d.Location},{merge:true}).then(data =>  console.log(key)
+        ).catch((error) => {
+          console.log(error); 
+        })
       });
-    })
-  });
+    }) 
 
-  busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+  busboy.on('field', function (fieldname, val, ) {
     console.log('Field [' + fieldname + ']: value: ' + val);
     data = JSON.parse(val)
   });
@@ -203,7 +214,7 @@ exports.uploadVideoQBank = async (req, res, next) => {
     data.key = key
    
     if (data.noVideo === false) {
-            data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
+            data.video_uri =video_url?video_url: `https://raw-video-qrioctybox.s3.ap-south-1.amazonaws.com/QBank/${key}`
 
     }
     //   promise.then(
@@ -221,7 +232,7 @@ exports.uploadVideoQBank = async (req, res, next) => {
     //     error => console.log(error)
     //   )
     // }else{
-      admin.firestore().collection("Qbank").doc().set(data).then(data => {
+      admin.firestore().collection("Qbank").doc(key).set(data).then(data => {
         return res.json({ success: true })
       }).catch((error) => {
         console.log(error);

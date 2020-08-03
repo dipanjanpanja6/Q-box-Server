@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 7000;
 var app = express()
 
 var whitelist = [
+
   'https://qrioctybox.com',
   'https://www.qrioctybox.com',
   'https://tutor.qrioctybox.com',
@@ -20,6 +21,7 @@ var whitelist = [
   'http://tutor.qrioctybox.com',
   'http://localhost',
   'http://localhost:3000',
+  
 ]
 
 app.use(cross({
