@@ -16,9 +16,11 @@ var whitelist = [
 
   'https://qrioctybox.com',
   'https://www.qrioctybox.com',
+
   'https://tutor.qrioctybox.com',
-  'https://admin.qrioctybox.com',
-  'http://tutor.qrioctybox.com',
+
+  'https://quality.qrioctybox.com',
+
   'http://localhost',
   'http://localhost:3000',
   
