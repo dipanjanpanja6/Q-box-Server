@@ -104,6 +104,7 @@ const {
   getQbankkRejectedQuestion,
   getWeeklyTextRejectedQuestion,
   getMonthlyTextRejectedQuestion,
+  getTeacherInfo
 } = require("./course/course");
 
 // app.post("/api/admin/login", AdminLogin, createCookies);
@@ -132,6 +133,8 @@ app.get(
   "/api/course/admin/getmonthlyrejectedquestion",
   getMonthlyTextRejectedQuestion
 );
+app.get("/api/course/admin/getteacherinfo/:tid", getTeacherInfo);
+
 
 // ===========================================================================
 

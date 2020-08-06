@@ -599,5 +599,33 @@ exports.getMonthlyTextRejectedQuestion = async (req, res) => {
       return res.json({ error: true, message: error, data: [] });
     });
 };
-
+exports.getTeacherInfo = async (req, res) => {
+  console.log(req.params.tid);
+  await admin
+    .firestore()
+    .collection("teacher")
+    .doc(req.params.tid)
+    .get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.status(404).json({
+          error: true,
+          message: "No Teacher Found!",
+        });
+      } else {
+        var data = [data];
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data();
+          sd.ID = d.id;
+          file.push(sd);
+        });
+        return res.json({ success: true, name: file[0].userName });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error });
+    });
+};
 // =============== ADMIN PART - {End}=====================
