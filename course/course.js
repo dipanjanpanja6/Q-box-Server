@@ -537,6 +537,8 @@ exports.getTeacherQbookRejectedQuestion = async (req, res) => {
       return res.json({ error: true, message: error, data: [] });
     });
 }
+
+
 exports.deleteTeacherQbookRejectedQuestion = async (req, res) => {
   const uid = req.uid
   const id = req.params.id
@@ -583,10 +585,7 @@ exports.deleteTeacherQbookRejectedQuestion = async (req, res) => {
     });
 
 
-}
-
-
-
+} 
 
 // QBANKQUESTION
 exports.getQbankkRejectedQuestion = async (req, res) => {
