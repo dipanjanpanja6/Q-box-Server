@@ -512,10 +512,11 @@ exports.getQbookRejectedQuestion = async (req, res) => {
       return res.json({ error: true, message: error, data: [] });
     });
 };
-
-exports.getTeacherQbookRejectedQuestion = async (req, res) => {
+//teacher get q
+exports.getTeacherRejectedQuestion = async (req, res) => {
   const uid = req.uid
-  await admin.firestore().collection("QBook").where("uid", "==", uid).where("approve", "==", false).get()
+  const sub = req.params.sub
+  await admin.firestore().collection(sub).where("uid", "==", uid).where("approve", "==", false).get()
     .then(async (data) => {
       if (data.empty) {
         return res.json({
@@ -537,13 +538,12 @@ exports.getTeacherQbookRejectedQuestion = async (req, res) => {
       return res.json({ error: true, message: error, data: [] });
     });
 }
-
-
-exports.deleteTeacherQbookRejectedQuestion = async (req, res) => {
+exports.deleteTeacherRejectedQuestion = async (req, res) => {
   const uid = req.uid
   const id = req.params.id
+  const sub = req.params.sub
 
-  await admin.firestore().collection("QBook").doc(id).get().then(async (data) => {
+  await admin.firestore().collection(sub).doc(id).get().then(async (data) => {
     console.log(data.exists);
     if (data.exists) {
       var d = data.data()
