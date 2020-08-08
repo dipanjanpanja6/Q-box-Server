@@ -104,7 +104,9 @@ const {
   getQbankkRejectedQuestion,
   getWeeklyTextRejectedQuestion,
   getMonthlyTextRejectedQuestion,
-  getTeacherInfo
+  getTeacherInfo,
+  getTeacherQbookRejectedQuestion,
+  deleteTeacherQbookRejectedQuestion,
 } = require("./course/course");
 
 // app.post("/api/admin/login", AdminLogin, createCookies);
@@ -121,10 +123,11 @@ app.post("/api/course/admin/rejectquestion/:collect/:qid", RejectQuestion);
 
 // GETTING REJECTED QUESTION
 app.get("/api/course/admin/getqbookrejectedquestion", getQbookRejectedQuestion);
-app.get(
-  "/api/course/admin/getqbankkrejectedquestion",
-  getQbankkRejectedQuestion
-);
+
+app.get("/api/course/teacher/getqbookrejectedquestion",checkTeacher, getTeacherQbookRejectedQuestion);
+app.delete("/api/course/teacher/getqbookrejectedquestion/:id",checkTeacher, deleteTeacherQbookRejectedQuestion);
+
+app.get("/api/course/admin/getqbankkrejectedquestion", getQbankkRejectedQuestion);
 app.get(
   "/api/course/admin/getweeklyrejectedquestion",
   getWeeklyTextRejectedQuestion
