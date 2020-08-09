@@ -167,7 +167,6 @@ exports.uploadVideoQBook = async (req, res, next) => {
 
 }
 
-
 exports.uploadVideoQBank = async (req, res, next) => {
 
   var key = randomId(10, 'Aa0')
@@ -216,22 +215,7 @@ exports.uploadVideoQBank = async (req, res, next) => {
     if (data.noVideo === false) {
       data.video_uri = video_url ? video_url : `https://raw-video-qrioctybox.s3.ap-south-1.amazonaws.com/QBank/${key}`
 
-    }
-    //   promise.then(
-    //     result => {
-    //       data.video_uri = result
-    //       // data.video_uri = `https://raw-video-qrioctybox.s3.amazonaws.com/QBank/${key}`
-    //       admin.firestore().collection("Qbank").doc().set(data).then(data => {
-    //         return res.json({ success: true })
-    //       }).catch((error) => {
-    //         console.log(error);
-    //         return res.json({ error: true, message: error })
-    //       })
-    //       // console.log(result)
-    //     },
-    //     error => console.log(error)
-    //   )
-    // }else{
+    } 
     admin.firestore().collection("Qbank").doc(key).set(data).then(data => {
       return res.json({ success: true })
     }).catch((error) => {
@@ -543,28 +527,25 @@ exports.getTeacherRejectedOneQuestion = async (req, res) => {
   const uid = req.uid;
   const id = req.params.id;
   const sub = req.params.sub;
-  await admin.firestore().collection(sub).where('uid', '==', uid).where('approve', '==', false).get().then(async (data) => {
-    if (data.empty) {
+  await admin.firestore().collection(sub).doc(id).get().then(async (data) => {
+    if (data.exists) {
+      var d = data.doc() 
+      if(d.uid===uid && d.approve==false){
+        return res.json({ success: true, data: d });
+      }else return res.json({error:true,message:'Unauthorized access!'})
+    } else {
       return res.json({
         error: true,
         message: 'Currently No Question available'
-      })
-    } else {
-      var file = null;
-      await data.forEach(async (d) => {
-        var sd = d.data();
-        sd.ID = d.id;
-        if (sd.ID === id) {
-          file = sd;
-        }
-      });
-      return res.json({ success: true, data: file });
+      }) 
     }
   }).catch((error) => {
     console.log(error)
     return res.json({ error: true, message: error, data: [] });
   })
 }
+
+
 exports.deleteTeacherRejectedQuestion = async (req, res) => {
   const uid = req.uid
   const id = req.params.id

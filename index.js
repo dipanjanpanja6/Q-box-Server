@@ -43,6 +43,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser("cookies_secret_##$$123@@"));
 
+// ############################Course################################
+
+
+const { getQbookQuestion, getQbankkQuestion, getWeeklyTextQuestion, getMonthlyTextQuestion, getQuestionToView, ApproveQuestion, RejectQuestion, getQbookRejectedQuestion, getQbankkRejectedQuestion,
+  getWeeklyTextRejectedQuestion, getMonthlyTextRejectedQuestion, getTeacherInfo, getTeacherRejectedQuestion, deleteTeacherRejectedQuestion, getTeacherRejectedOneQuestion,
+  createWeeklyTest, createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook, } = require("./course/course");
+
+
 // ############################StudentAccount################################
 
 const { createCookies, signUp, login, checkUser } = require('./auth/studentAuth')
@@ -51,6 +59,7 @@ app.post('/api/signUp', signUp, createCookies)
 app.post('/api/login', login, createCookies)
 
 
+app.post('/api/checkUser', checkUser, (req, res) => { return res.json({ success: true }) })
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@TeacherAccount@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -60,12 +69,11 @@ app.post('/api/teacher/signUp', createTeacherAccount, createCookies)
 app.post('/api/teacher/login', teacherLogin, createCookies)
 app.post('/api/teacher/upload', checkUser, teacherQuestionUpload)
 
-const { createWeeklyTest, createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook, } = require('./course/course');
+const { } = require('./course/course');
 
 app.get('/api/course', getCourse)
 app.post('/api/getstream', getStreamByCourseName)
 app.post('/api/getsubject', getSubject)
-
 
 app.post('/api/upload/qbank', checkTeacher, uploadVideoQBank)
 app.post('/api/upload/qbook', checkTeacher, uploadVideoQBook)
@@ -74,44 +82,22 @@ app.post('/api/upload/qbook', checkTeacher, uploadVideoQBook)
 app.post('/api/upload/weekly-test', checkTeacher, createWeeklyTest)
 app.post('/api/upload/monthly-test', checkTeacher, createMonthlyTest)
 
+app.get("/api/course/teacher/:sub/rejectedquestion", checkTeacher, getTeacherRejectedQuestion);
+app.delete("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, deleteTeacherRejectedQuestion);
 
-app.post('/api/teacher/checkUser', checkTeacher, (req, res) => {
-  return res.json({ success: true })
-})
-app.post('/api/teacher/logout', (req, res) => {
-  res.clearCookie('token');
-  return res.json({ success: true })
-})
+//GET SINGLE REJECT QUESTIONS TO EDIT
+app.get("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, getTeacherRejectedOneQuestion);
+
+ 
+app.post('/api/teacher/checkUser', checkTeacher, (req, res) => { return res.json({ success: true }) })
+app.post('/api/teacher/logout', (req, res) => { res.clearCookie('token'); return res.json({ success: true }) })
 
 // ############################AdminAccount################################ 
 const { AdminLogin } = require('./auth/adminAuth');
 
-app.post('/api/admin/login', AdminLogin, createCookies)
-// app.post('/api/admin/check', AdminLogin, createCookies )
+app.post('/api/admin/login', AdminLogin, createCookies) 
 
-// =======================================================================
-// ############################AdminAccount################################
-// const { AdminLogin } = require("./auth/adminAuth");
-const {
-  getQbookQuestion,
-  getQbankkQuestion,
-  getWeeklyTextQuestion,
-  getMonthlyTextQuestion,
-  getQuestionToView,
-  ApproveQuestion,
-  RejectQuestion,
-  getQbookRejectedQuestion,
-  getQbankkRejectedQuestion,
-  getWeeklyTextRejectedQuestion,
-  getMonthlyTextRejectedQuestion,
-  getTeacherInfo,
-  getTeacherRejectedQuestion,
-  deleteTeacherRejectedQuestion,
-  getTeacherRejectedOneQuestion
-} = require("./course/course");
 
-// app.post("/api/admin/login", AdminLogin, createCookies);
-// app.post('/api/admin/check', AdminLogin, createCookies )
 app.get("/api/course/admin/getqbookquestion", getQbookQuestion);
 app.get("/api/course/admin/getqbankquestion", getQbankkQuestion);
 app.get("/api/course/admin/getweeklytestquestion", getWeeklyTextQuestion);
@@ -124,20 +110,10 @@ app.post("/api/course/admin/rejectquestion/:collect/:qid", RejectQuestion);
 
 // GETTING REJECTED QUESTION
 app.get("/api/course/admin/getqbookrejectedquestion", getQbookRejectedQuestion);
-
-app.get("/api/course/teacher/:sub/rejectedquestion", checkTeacher, getTeacherRejectedQuestion);
-app.get("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, getTeacherRejectedOneQuestion);
-app.delete("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, deleteTeacherRejectedQuestion);
-
 app.get("/api/course/admin/getqbankkrejectedquestion", getQbankkRejectedQuestion);
-app.get(
-  "/api/course/admin/getweeklyrejectedquestion",
-  getWeeklyTextRejectedQuestion
-);
-app.get(
-  "/api/course/admin/getmonthlyrejectedquestion",
-  getMonthlyTextRejectedQuestion
-);
+app.get("/api/course/admin/getweeklyrejectedquestion", getWeeklyTextRejectedQuestion);
+app.get("/api/course/admin/getmonthlyrejectedquestion", getMonthlyTextRejectedQuestion);
+
 app.get("/api/course/admin/getteacherinfo/:tid", getTeacherInfo);
 
 
@@ -152,22 +128,14 @@ app.get("/api/course/admin/getteacherinfo/:tid", getTeacherInfo);
 
 /////////////////////////////////
 
-app.post('/api/checkUser', checkUser, (req, res) => {
-  return res.json({ success: true })
-})
 
-app.post('/api/logout', (req, res) => {
-  res.clearCookie('token');
-  return res.json({ success: true })
-})
+app.post('/api/logout', (req, res) => { res.clearCookie('token'); return res.json({ success: true }) })
 
 
 
 
 
-app.get('/', (req, res) => {
-  return res.json({ message: "This is a server # Don't mesh it up :( ", error: "Unauthorize Access" })
-})
+app.get('/', (req, res) => { return res.json({ message: "This is a server # Don't mesh it up :( ", error: "Unauthorize Access" }) })
 
 
 const server = http.createServer(app)
