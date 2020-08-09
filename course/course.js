@@ -215,7 +215,7 @@ exports.uploadVideoQBank = async (req, res, next) => {
     if (data.noVideo === false) {
       data.video_uri = video_url ? video_url : `https://raw-video-qrioctybox.s3.ap-south-1.amazonaws.com/QBank/${key}`
 
-    } 
+    }
     admin.firestore().collection("Qbank").doc(key).set(data).then(data => {
       return res.json({ success: true })
     }).catch((error) => {
@@ -529,15 +529,17 @@ exports.getTeacherRejectedOneQuestion = async (req, res) => {
   const sub = req.params.sub;
   await admin.firestore().collection(sub).doc(id).get().then(async (data) => {
     if (data.exists) {
-      var d = data.doc() 
-      if(d.uid===uid && d.approve==false){
+      var d = data.data()
+      console.log(d);
+      if (d.uid === uid && d.approve == false) {
         return res.json({ success: true, data: d });
-      }else return res.json({error:true,message:'Unauthorized access!'})
+      } else return res.json({ error: true, message: 'Unauthorized access!' })
     } else {
+      console.log("Currently No Question available");
       return res.json({
         error: true,
         message: 'Currently No Question available'
-      }) 
+      })
     }
   }).catch((error) => {
     console.log(error)
