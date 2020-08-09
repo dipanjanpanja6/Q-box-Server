@@ -538,6 +538,33 @@ exports.getTeacherRejectedQuestion = async (req, res) => {
       return res.json({ error: true, message: error, data: [] });
     });
 }
+
+exports.getTeacherRejectedOneQuestion = async (req, res) => {
+  const uid = req.uid;
+  const id = req.params.id;
+  const sub = req.params.sub;
+  await admin.firestore().collection(sub).where('uid', '==', uid).where('approve', '==', false).get().then(async (data) => {
+    if (data.empty) {
+      return res.json({
+        error: true,
+        message: 'Currently No Question available'
+      })
+    } else {
+      var file = null;
+      await data.forEach(async (d) => {
+        var sd = d.data();
+        sd.ID = d.id;
+        if (sd.ID === id) {
+          file = sd;
+        }
+      });
+      return res.json({ success: true, data: file });
+    }
+  }).catch((error) => {
+    console.log(error)
+    return res.json({ error: true, message: error, data: [] });
+  })
+}
 exports.deleteTeacherRejectedQuestion = async (req, res) => {
   const uid = req.uid
   const id = req.params.id
@@ -585,7 +612,7 @@ exports.deleteTeacherRejectedQuestion = async (req, res) => {
     });
 
 
-} 
+}
 
 // QBANKQUESTION
 exports.getQbankkRejectedQuestion = async (req, res) => {

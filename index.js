@@ -23,7 +23,7 @@ var whitelist = [
 
   'http://localhost',
   'http://localhost:3000',
-  
+
 ]
 
 app.use(cross({
@@ -41,7 +41,7 @@ app.use(cross({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cookieParser("cookies_secret_##$$123@@")); 
+app.use(cookieParser("cookies_secret_##$$123@@"));
 
 // ############################StudentAccount################################
 
@@ -60,11 +60,11 @@ app.post('/api/teacher/signUp', createTeacherAccount, createCookies)
 app.post('/api/teacher/login', teacherLogin, createCookies)
 app.post('/api/teacher/upload', checkUser, teacherQuestionUpload)
 
-const {createWeeklyTest,createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook,  } = require('./course/course');
+const { createWeeklyTest, createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook, } = require('./course/course');
 
 app.get('/api/course', getCourse)
 app.post('/api/getstream', getStreamByCourseName)
-app.post('/api/getsubject', getSubject) 
+app.post('/api/getsubject', getSubject)
 
 
 app.post('/api/upload/qbank', checkTeacher, uploadVideoQBank)
@@ -72,7 +72,7 @@ app.post('/api/upload/qbook', checkTeacher, uploadVideoQBook)
 
 
 app.post('/api/upload/weekly-test', checkTeacher, createWeeklyTest)
-app.post('/api/upload/monthly-test', checkTeacher, createMonthlyTest)  
+app.post('/api/upload/monthly-test', checkTeacher, createMonthlyTest)
 
 
 app.post('/api/teacher/checkUser', checkTeacher, (req, res) => {
@@ -107,6 +107,7 @@ const {
   getTeacherInfo,
   getTeacherRejectedQuestion,
   deleteTeacherRejectedQuestion,
+  getTeacherRejectedOneQuestion
 } = require("./course/course");
 
 // app.post("/api/admin/login", AdminLogin, createCookies);
@@ -124,9 +125,10 @@ app.post("/api/course/admin/rejectquestion/:collect/:qid", RejectQuestion);
 // GETTING REJECTED QUESTION
 app.get("/api/course/admin/getqbookrejectedquestion", getQbookRejectedQuestion);
 
-app.get("/api/course/teacher/:sub/rejectedquestion",checkTeacher, getTeacherRejectedQuestion);
-app.delete("/api/course/teacher/:sub/rejectedquestion/:id",checkTeacher, deleteTeacherRejectedQuestion);
- 
+app.get("/api/course/teacher/:sub/rejectedquestion", checkTeacher, getTeacherRejectedQuestion);
+app.get("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, getTeacherRejectedOneQuestion);
+app.delete("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, deleteTeacherRejectedQuestion);
+
 app.get("/api/course/admin/getqbankkrejectedquestion", getQbankkRejectedQuestion);
 app.get(
   "/api/course/admin/getweeklyrejectedquestion",
