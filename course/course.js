@@ -497,6 +497,30 @@ exports.getQbookRejectedQuestion = async (req, res) => {
     });
 };
 //teacher get q
+exports.getQuestions = async (req, res) => {
+  const sub = req.params.sub
+  await admin.firestore().collection(sub).where("approve", "==", true).get()
+    .then(async (data) => {
+      if (data.empty) {
+        return res.json({
+          error: true,
+          message: 'Currently No Question available'
+        })
+      } else {
+        var file = [];
+        await data.forEach(async (d) => {
+          var sd = d.data()
+          sd.ID = d.id
+          file.push(sd)
+        })
+        return res.json({ success: true, data: file })
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.json({ error: true, message: error, data: [] });
+    });
+}
 exports.getTeacherRejectedQuestion = async (req, res) => {
   const uid = req.uid
   const sub = req.params.sub
