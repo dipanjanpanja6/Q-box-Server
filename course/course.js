@@ -85,6 +85,27 @@ exports.getSubject = async (req, res) => {
 }
 
 
+//////////
+exports.createSubject = async (req, res) => {
+  // console.log(ID);
+  const chapter = req.body.chapter
+  const course = req.body.course
+  const desc = req.body.desc
+  const name = req.body.name
+  const stream = req.body.stream
+
+  await admin.firestore().collection("subject").doc().set({
+    chapter, course, desc, name, stream,  id: randomId(6, "0") }
+  ).then(async data => {
+    return res.json({ success: true, message:'success' })
+
+  }).catch((error) => {
+    console.log(error);
+    return res.json({ error: true, message: error })
+  });
+}
+
+
 
 
 

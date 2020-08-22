@@ -46,7 +46,7 @@ app.use(cookieParser("cookies_secret_##$$123@@"));
 // ############################Course################################
 
 
-const { getQbookQuestion, getQbankkQuestion, getWeeklyTextQuestion, getMonthlyTextQuestion, getQuestionToView, ApproveQuestion, RejectQuestion, getQbookRejectedQuestion, getQbankkRejectedQuestion,
+const {createSubject, getQbookQuestion, getQbankkQuestion, getWeeklyTextQuestion, getMonthlyTextQuestion, getQuestionToView, ApproveQuestion, RejectQuestion, getQbookRejectedQuestion, getQbankkRejectedQuestion,
   getWeeklyTextRejectedQuestion, getMonthlyTextRejectedQuestion, getTeacherInfo, getTeacherRejectedQuestion, deleteTeacherRejectedQuestion, getTeacherRejectedOneQuestion,
   createWeeklyTest, createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook, getQuestions } = require("./course/course");
 
@@ -69,7 +69,8 @@ app.post('/api/teacher/signUp', createTeacherAccount, createCookies)
 app.post('/api/teacher/login', teacherLogin, createCookies)
 app.post('/api/teacher/upload', checkUser, teacherQuestionUpload)
 
-const { } = require('./course/course');
+app.post('/api/createSubject', createSubject)
+
 
 app.get('/api/course', getCourse)
 app.post('/api/getstream', getStreamByCourseName)
