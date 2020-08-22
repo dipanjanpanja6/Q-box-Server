@@ -11,7 +11,9 @@ var now = new Date();
 var dates = dateFormat(now, "ddd");
 var times = dateFormat(now, " h:MM TT");
 var createdAt = dateFormat(now, "dddd, mmmm dS, yyyy, h:MM:ss TT")
-console.log(createdAt);
+var created = dateFormat(now, "dd-mm-yyyy")
+
+console.log(created);
 
 const ID = process.env.AWS_ACCESS_ID;
 const SECRET = process.env.AWS_SECRET;
@@ -95,9 +97,10 @@ exports.createSubject = async (req, res) => {
   const stream = req.body.stream
 
   await admin.firestore().collection("subject").doc().set({
-    chapter, course, desc, name, stream,  id: randomId(6, "0") }
+    chapter, course, desc, name, stream, id: randomId(6, "0")
+  }
   ).then(async data => {
-    return res.json({ success: true, message:'success' })
+    return res.json({ success: true, message: 'success' })
 
   }).catch((error) => {
     console.log(error);
@@ -213,7 +216,7 @@ exports.uploadVideoQBank = async (req, res, next) => {
     s3.upload().on('httpUploadProgress', function (evt) {
     }).send(function (err, d) {
       console.log(d.Location);
-      video_url = video_urd.Location
+      video_url = d.Location
       admin.firestore().collection("Qbank").doc(key).set({ video_uri: d.Location }, { merge: true }).then(data => console.log(key)
       ).catch((error) => {
         console.log(error);
@@ -252,6 +255,59 @@ exports.uploadVideoQBank = async (req, res, next) => {
 
 
 }
+exports.uploadImage = async (req, res, next) => {
+  var key = randomId(10, 'Aa0')
+  var uid = req.uid
+  console.log(req.files);
+  var busboy = new Busboy({ headers: req.headers });
+
+  busboy.on("error", err => {
+    log.error(err);
+    return res.json({ error: true, message: 'upload failed. pipeline failed' })
+
+  });
+
+  busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+    console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+    var extension = filename.substring(filename.lastIndexOf('.')+1);
+    console.log(extension);
+    console.log(BUCKET_NAME_PIC);
+    var s3 = new AWS.S3({
+      accessKeyId: ID,
+      secretAccessKey: SECRET,
+      params: { Bucket: BUCKET_NAME_PIC, Key: `${uid}/${created}/${key}.${extension}`, Body: file, Metadata: { ContentType: mimetype, Filename: filename, encoding: encoding } },
+
+    });
+    s3.upload().on('httpUploadProgress', function (evt) {
+    }).send(function (err, d) {
+      console.log(d);
+      console.log(err);
+      return res.json({
+        data: {
+          link: d.Location,
+          type:mimetype
+        },
+        success:true,
+      });
+
+    });
+  })
+
+  busboy.on('field', function (fieldname, val,) {
+    console.log('Field [' + fieldname + ']: value: ' + val);
+    return res.status(500).json({ error: true, message: 'file not selected' })
+  });
+
+  busboy.on('finish', function () {
+    console.log('Done parsing form!');
+    var createdAt = createdAt
+    var uid = req.uid
+
+  });
+
+  req.pipe(busboy);
+}
+
 
 exports.createMonthlyTest = (req, res) => {
   let data = req.body.data
@@ -548,6 +604,7 @@ exports.getTeacherRejectedQuestion = async (req, res) => {
   await admin.firestore().collection(sub).where("uid", "==", uid).where("approve", "==", false).get()
     .then(async (data) => {
       if (data.empty) {
+        console.log(sub,uid);
         return res.json({
           error: true,
           message: "Currently No Question available",
@@ -617,7 +674,7 @@ exports.deleteTeacherRejectedQuestion = async (req, res) => {
           })
         }
 
-        await admin.firestore().collection("QBook").doc(id).delete()
+        await admin.firestore().collection(sub).doc(id).delete()
           .then(async (data) => {
             return res.json({ success: true, message: 'Deleted Successfully.' });
           })

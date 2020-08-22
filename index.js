@@ -48,7 +48,7 @@ app.use(cookieParser("cookies_secret_##$$123@@"));
 
 const {createSubject, getQbookQuestion, getQbankkQuestion, getWeeklyTextQuestion, getMonthlyTextQuestion, getQuestionToView, ApproveQuestion, RejectQuestion, getQbookRejectedQuestion, getQbankkRejectedQuestion,
   getWeeklyTextRejectedQuestion, getMonthlyTextRejectedQuestion, getTeacherInfo, getTeacherRejectedQuestion, deleteTeacherRejectedQuestion, getTeacherRejectedOneQuestion,
-  createWeeklyTest, createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook, getQuestions } = require("./course/course");
+  createWeeklyTest, createMonthlyTest, getCourse, getStreamByCourseName, getSubject, uploadVideoQBank, uploadVideoQBook, getQuestions,uploadImage } = require("./course/course");
 
 
 // ############################StudentAccount################################
@@ -82,6 +82,8 @@ app.post('/api/upload/qbook', checkTeacher, uploadVideoQBook)
 
 app.post('/api/upload/weekly-test', checkTeacher, createWeeklyTest)
 app.post('/api/upload/monthly-test', checkTeacher, createMonthlyTest)
+app.post('/upload/image', checkTeacher, uploadImage)
+
 
 app.get('/api/course/:sub/getapprovequestion', checkTeacher, getQuestions)
 app.get("/api/course/teacher/:sub/rejectedquestion", checkTeacher, getTeacherRejectedQuestion);
@@ -94,7 +96,7 @@ app.get("/api/course/teacher/:sub/rejectedquestion/:id", checkTeacher, getTeache
 app.post('/api/teacher/checkUser', checkTeacher, (req, res) => { return res.json({ success: true }) })
 app.post('/api/teacher/logout', (req, res) => { res.clearCookie('token'); return res.json({ success: true }) })
 
-// ############################AdminAccount################################ 
+// ############################QualityAccount################################ 
 const { AdminLogin } = require('./auth/adminAuth');
 
 app.post('/api/admin/login', AdminLogin, createCookies)
